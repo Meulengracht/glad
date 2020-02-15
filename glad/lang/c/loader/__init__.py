@@ -55,7 +55,7 @@ void %(terminate)s(void) {
 #include <dlfcn.h>
 static void* libGL;
 
-#if !defined(__APPLE__) && !defined(__HAIKU__)
+#if !defined(__APPLE__) && !defined(__HAIKU__) && !defined(MOLLENOS)
 typedef void* (APIENTRYP PFNGLXGETPROCADDRESSPROC_PRIVATE)(const char*);
 static PFNGLXGETPROCADDRESSPROC_PRIVATE gladGetProcAddressPtr;
 #endif
@@ -69,6 +69,8 @@ int %(init)s(void) {
         "/System/Library/Frameworks/OpenGL.framework/OpenGL",
         "/System/Library/Frameworks/OpenGL.framework/Versions/Current/OpenGL"
     };
+#elif defined(MOLLENOS)
+    static const char *NAMES[] = { "gallium-osmesa.dll", "opengl.dll" };
 #else
     static const char *NAMES[] = {"libGL.so.1", "libGL.so"};
 #endif
@@ -78,7 +80,7 @@ int %(init)s(void) {
         libGL = dlopen(NAMES[index], RTLD_NOW | RTLD_GLOBAL);
 
         if(libGL != NULL) {
-#if defined(__APPLE__) || defined(__HAIKU__)
+#if defined(__APPLE__) || defined(__HAIKU__) || defined(MOLLENOS)
             return 1;
 #else
             gladGetProcAddressPtr = (PFNGLXGETPROCADDRESSPROC_PRIVATE)dlsym(libGL,
@@ -105,7 +107,7 @@ void* %(proc)s(const char *namez) {
     void* result = NULL;
     if(libGL == NULL) return NULL;
 
-#if !defined(__APPLE__) && !defined(__HAIKU__)
+#if !defined(__APPLE__) && !defined(__HAIKU__) && !defined(MOLLENOS)
     if(gladGetProcAddressPtr != NULL) {
         result = gladGetProcAddressPtr(namez);
     }
@@ -128,7 +130,7 @@ LOAD_OPENGL_DLL_H = '''
 LOAD_OPENGL_GLAPI_H = '''
 #ifndef GLAPI
 # if defined(GLAD_GLAPI_EXPORT)
-#  if defined(_WIN32) || defined(__CYGWIN__)
+#  if defined(_WIN32) || defined(__CYGWIN__) || defined(MOLLENOS)
 #   if defined(GLAD_GLAPI_EXPORT_BUILD)
 #    if defined(__GNUC__)
 #     define GLAPI __attribute__ ((dllexport)) extern
