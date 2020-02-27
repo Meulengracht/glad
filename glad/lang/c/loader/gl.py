@@ -44,10 +44,9 @@ static int get_exts(void) {
         glGetIntegerv(GL_NUM_EXTENSIONS, &num_exts_i);
         if (num_exts_i > 0) {
             exts_i = (char **)malloc((size_t)num_exts_i * (sizeof *exts_i));
-        }
-
-        if (exts_i == NULL) {
-            return 0;
+            if (exts_i == NULL) {
+                return 0;
+            }
         }
 
         for(index = 0; index < (unsigned)num_exts_i; index++) {
