@@ -179,7 +179,7 @@ _FIND_VERSION = '''
      * https://github.com/elmindreda/greg/blob/master/templates/greg.c.in#L176
      * https://github.com/glfw/glfw/blob/master/src/context.c#L36
      */
-    int i, major, minor;
+    int i, major = major_override, minor = minor_override;
 
     const char* version;
     const char* prefixes[] = {
@@ -188,24 +188,26 @@ _FIND_VERSION = '''
         "OpenGL ES ",
         NULL
     };
+    
+    if (!major && !minor) {
+        version = (const char*) glGetString(GL_VERSION);
+        if (!version) return;
 
-    version = (const char*) glGetString(GL_VERSION);
-    if (!version) return;
-
-    for (i = 0;  prefixes[i];  i++) {
-        const size_t length = strlen(prefixes[i]);
-        if (strncmp(version, prefixes[i], length) == 0) {
-            version += length;
-            break;
+        for (i = 0;  prefixes[i];  i++) {
+            const size_t length = strlen(prefixes[i]);
+            if (strncmp(version, prefixes[i], length) == 0) {
+                version += length;
+                break;
+            }
         }
-    }
 
 /* PR #18 */
 #ifdef _MSC_VER
-    sscanf_s(version, "%d.%d", &major, &minor);
+        sscanf_s(version, "%d.%d", &major, &minor);
 #else
-    sscanf(version, "%d.%d", &major, &minor);
+        sscanf(version, "%d.%d", &major, &minor);
 #endif
+    }
 
     GLVersion.major = major; GLVersion.minor = minor;
     max_loaded_major = major; max_loaded_minor = minor;
@@ -221,7 +223,7 @@ class OpenGLCLoader(BaseLoader):
         fobj.write('\tGLVersion.major = 0; GLVersion.minor = 0;\n')
         fobj.write('\tglGetString = (PFNGLGETSTRINGPROC)load("glGetString");\n')
         fobj.write('\tif(glGetString == NULL) return 0;\n')
-        fobj.write('\tif(glGetString(GL_VERSION) == NULL) return 0;\n')
+        fobj.write('\tif(!major && !minor && glGetString(GL_VERSION) == NULL) return 0;\n')
 
     def write_end_load(self, fobj):
         fobj.write('\treturn GLVersion.major != 0 || GLVersion.minor != 0;\n')
