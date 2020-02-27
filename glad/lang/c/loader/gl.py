@@ -9,7 +9,7 @@ int gladLoadGL(void) {
     int status = 0;
 
     if(open_gl()) {
-        status = gladLoadGLLoader(&get_proc);
+        status = gladLoadGLLoader(&get_proc, 0, 0);
         close_gl();
     }
 
