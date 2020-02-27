@@ -139,7 +139,7 @@ class CGenerator(Generator):
             elif api == 'wgl':
                 f.write('static void find_core{}(HDC hdc) {{\n'.format(api.upper()))
             else:
-                f.write('static void find_core{}(void) {{\n'.format(api.upper()))
+                f.write('static void find_core{}(int major_override, int minor_override) {{\n'.format(api.upper()))
 
             self.loader.write_find_core(f)
             if self.spec.NAME in ('gl', 'glx', 'wgl'):
