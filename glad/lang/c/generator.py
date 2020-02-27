@@ -158,7 +158,7 @@ class CGenerator(Generator):
             elif api == 'wgl':
                 f.write('int gladLoad{}Loader(GLADloadproc load, HDC hdc) {{\n'.format(api.upper()))
             else:
-                f.write('int gladLoad{}Loader(GLADloadproc load) {{\n'.format(api.upper()))
+                f.write('int gladLoad{}Loader(GLADloadproc load, int major, int minor) {{\n'.format(api.upper()))
 
             self.loader.write_begin_load(f)
 
@@ -167,7 +167,7 @@ class CGenerator(Generator):
             elif api == 'wgl':
                 f.write('\tfind_core{}(hdc);\n'.format(api.upper()))
             else:
-                f.write('\tfind_core{}();\n'.format(api.upper()))
+                f.write('\tfind_core{}(major, minor);\n'.format(api.upper()))
 
             for feature in features[api]:
                 f.write('\tload_{}(load);\n'.format(feature.name))
@@ -295,7 +295,7 @@ class CGenerator(Generator):
             elif api == 'wgl':
                 f.write('GLAPI int gladLoad{}Loader(GLADloadproc, HDC hdc);\n\n'.format(api.upper()))
             else:
-                f.write('GLAPI int gladLoad{}Loader(GLADloadproc);\n\n'.format(api.upper()))
+                f.write('GLAPI int gladLoad{}Loader(GLADloadproc, int major, int minor);\n\n'.format(api.upper()))
 
     def write_code_head(self, f):
         f.write('#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include {}\n'.format(self.h_include))
